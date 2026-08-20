@@ -39,6 +39,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     });
 
     socket.on('notification_received', (data: any) => {
+      // Validate that the notification is meant for the currently authenticated user
+      // This prevents cross-tab leakage if tabs share the same socket connection
+      if (data.userId && data.userId !== user._id) {
+        return;
+      }
+
       console.log('[NotificationContext] Real-time notification received:', data);
       setUnreadCount((prev) => prev + 1);
       

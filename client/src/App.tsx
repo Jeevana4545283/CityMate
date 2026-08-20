@@ -16,10 +16,19 @@ import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ExplorePage } from './pages/ExplorePage';
 import { PropertiesPage } from './pages/PropertiesPage';
+import { PropertyDetailsPage } from './pages/PropertyDetailsPage';
+import { CreatePropertyPage } from './pages/CreatePropertyPage';
+import { EditPropertyPage } from './pages/EditPropertyPage';
+import { MyListingsPage } from './pages/MyListingsPage';
+import { BookingRequestsPage } from './pages/BookingRequestsPage';
+import { MyBookingsPage } from './pages/MyBookingsPage';
 import { RoommateFinderPage } from './pages/RoommateFinderPage';
+import { RoommateProfilePage } from './pages/RoommateProfilePage';
+import { MyMatchesPage } from './pages/MyMatchesPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { ProviderDashboardPage } from './pages/ProviderDashboardPage';
 import { SportsPage } from './pages/SportsPage';
+import { SportsRequestsPage } from './pages/SportsRequestsPage';
 import { CommunitiesPage } from './pages/CommunitiesPage';
 import { MessagingPage } from './pages/MessagingPage';
 import { EssentialsPage } from './pages/EssentialsPage';
@@ -27,6 +36,9 @@ import { MarketplacePage } from './pages/MarketplacePage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { NotificationsPage } from './pages/NotificationsPage';
+import { EventsPage } from './pages/EventsPage';
+import { EventDetailsPage } from './pages/EventDetailsPage';
+import { EventPartnersPage } from './pages/EventPartnersPage';
 
 // Protected Route Component Guard
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -119,10 +131,22 @@ export const AppContent: React.FC = () => {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/explore" element={<ProtectedRoute><ExplorePage /></ProtectedRoute>} />
           <Route path="/properties" element={<ProtectedRoute><PropertiesPage /></ProtectedRoute>} />
+          <Route path="/properties/create" element={<ProtectedRoute><CreatePropertyPage /></ProtectedRoute>} />
+          <Route path="/properties/:id" element={<ProtectedRoute><PropertyDetailsPage /></ProtectedRoute>} />
+          <Route path="/properties/:id/edit" element={<ProtectedRoute><EditPropertyPage /></ProtectedRoute>} />
+          <Route path="/my-listings" element={<ProtectedRoute><MyListingsPage /></ProtectedRoute>} />
+          <Route path="/booking-requests" element={<ProtectedRoute><BookingRequestsPage /></ProtectedRoute>} />
+          <Route path="/my-bookings" element={<ProtectedRoute><MyBookingsPage /></ProtectedRoute>} />
           <Route path="/roommates" element={<ProtectedRoute><RoommateFinderPage /></ProtectedRoute>} />
+          <Route path="/roommate-profile" element={<ProtectedRoute><RoommateProfilePage /></ProtectedRoute>} />
+          <Route path="/my-matches" element={<ProtectedRoute><MyMatchesPage /></ProtectedRoute>} />
           <Route path="/services" element={<ProtectedRoute><ServicesPage /></ProtectedRoute>} />
           <Route path="/provider-dashboard" element={<ProtectedRoute><ProviderDashboardPage /></ProtectedRoute>} />
           <Route path="/sports" element={<ProtectedRoute><SportsPage /></ProtectedRoute>} />
+          <Route path="/sports-requests" element={<ProtectedRoute><SportsRequestsPage /></ProtectedRoute>} />
+          <Route path="/events" element={<ProtectedRoute><EventsPage /></ProtectedRoute>} />
+          <Route path="/events/:id" element={<ProtectedRoute><EventDetailsPage /></ProtectedRoute>} />
+          <Route path="/events/:id/partners" element={<ProtectedRoute><EventPartnersPage /></ProtectedRoute>} />
           <Route path="/people" element={<ProtectedRoute><RoommateFinderPage /></ProtectedRoute>} />
           <Route path="/communities" element={<ProtectedRoute><CommunitiesPage /></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><MessagingPage /></ProtectedRoute>} />

@@ -169,7 +169,8 @@ io.on('connection', (socket) => {
       io.to(`user_${receiverId}`).emit('receive_message', messageData);
       io.to(`user_${receiverId}`).emit('notification_received', {
         type: 'Message',
-        message: `New message from ${senderUser?.name || 'a contact'}`
+        message: `New message from ${senderUser?.name || 'a contact'}`,
+        userId: receiverId.toString()
       });
 
       if (typeof ackCallback === 'function') {

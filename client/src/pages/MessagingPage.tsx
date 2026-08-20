@@ -147,20 +147,18 @@ export const MessagingPage: React.FC = () => {
 
   // Handle URL query parameter ?userId=... or default selection
   useEffect(() => {
-    if (conversations.length > 0) {
-      if (targetUserIdFromUrl) {
-        const found = conversations.find((c) => getUserIdStr(c.partner._id) === targetUserIdFromUrl);
-        if (found) {
-          setActivePartner(found.partner);
-        } else {
-          api.getUsers().then((users) => {
-            const u = users.find((usr: IUser) => getUserIdStr(usr._id) === targetUserIdFromUrl);
-            if (u) setActivePartner(u);
-          });
-        }
-      } else if (!activePartner && window.innerWidth >= 768) {
-        setActivePartner(conversations[0].partner);
+    if (targetUserIdFromUrl) {
+      const found = conversations.find((c) => getUserIdStr(c.partner._id) === targetUserIdFromUrl);
+      if (found) {
+        setActivePartner(found.partner);
+      } else {
+        api.getUsers().then((users) => {
+          const u = users.find((usr: IUser) => getUserIdStr(usr._id) === targetUserIdFromUrl);
+          if (u) setActivePartner(u);
+        });
       }
+    } else if (!activePartner && conversations.length > 0 && window.innerWidth >= 768) {
+      setActivePartner(conversations[0].partner);
     }
   }, [conversations, targetUserIdFromUrl]);
 
