@@ -137,7 +137,7 @@ export const AppContent: React.FC = () => {
           <Route path="/my-listings" element={<ProtectedRoute><MyListingsPage /></ProtectedRoute>} />
           <Route path="/booking-requests" element={<ProtectedRoute><BookingRequestsPage /></ProtectedRoute>} />
           <Route path="/my-bookings" element={<ProtectedRoute><MyBookingsPage /></ProtectedRoute>} />
-          <Route path="/roommates" element={<ProtectedRoute><RoommateFinderPage /></ProtectedRoute>} />
+          <Route path="/find-partner" element={<ProtectedRoute><RoommateFinderPage /></ProtectedRoute>} />
           <Route path="/roommate-profile" element={<ProtectedRoute><RoommateProfilePage /></ProtectedRoute>} />
           <Route path="/my-matches" element={<ProtectedRoute><MyMatchesPage /></ProtectedRoute>} />
           <Route path="/services" element={<ProtectedRoute><ServicesPage /></ProtectedRoute>} />

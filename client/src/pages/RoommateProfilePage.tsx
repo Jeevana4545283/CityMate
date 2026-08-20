@@ -44,11 +44,11 @@ export const RoommateProfilePage: React.FC = () => {
   const fetchProfile = async () => {
     setLoading(true);
     try {
-      const res = await api.client.get('/roommates/profile');
-      if (res.data) {
+      const data = await api.getRoommateProfile();
+      if (data) {
         setProfile({
-          ...res.data,
-          moveInDate: res.data.moveInDate ? new Date(res.data.moveInDate).toISOString().split('T')[0] : ''
+          ...data,
+          moveInDate: data.moveInDate ? new Date(data.moveInDate).toISOString().split('T')[0] : ''
         });
       }
     } catch (err: any) {
@@ -69,9 +69,9 @@ export const RoommateProfilePage: React.FC = () => {
         budgetMin: Number(profile.budgetMin),
         budgetMax: Number(profile.budgetMax)
       };
-      await api.client.post('/roommates/profile', dataToSave);
+      await api.saveRoommateProfile(dataToSave);
       showToast('Profile saved successfully!');
-      setTimeout(() => navigate('/roommates'), 1500);
+      setTimeout(() => navigate('/find-partner'), 1500);
     } catch (err) {
       showToast('Error saving profile');
     } finally {

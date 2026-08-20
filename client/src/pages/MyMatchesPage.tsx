@@ -21,8 +21,8 @@ export const MyMatchesPage: React.FC = () => {
   const fetchMatches = async () => {
     setLoading(true);
     try {
-      const res = await api.client.get('/roommates/matches');
-      setMatches(res.data);
+      const data = await api.getMatches();
+      setMatches(data);
     } catch (err) {
       showToast('Error loading matches');
     } finally {
@@ -33,15 +33,13 @@ export const MyMatchesPage: React.FC = () => {
   const handleRemove = async (matchId: string) => {
     const confirm = window.confirm('Are you sure you want to remove this match?');
     if (!confirm) return;
-    // In a real app we would have a specific endpoint for removing a match,
-    // For now we'll just remove it from the state.
     setMatches(matches.filter((m) => m._id !== matchId));
     showToast('Match removed');
   };
 
   const handleReport = async (userId: string) => {
     try {
-      await api.client.post('/roommates/report-block', { reportedUser: userId, type: 'REPORT' });
+      await api.reportOrBlockRoommate({ reportedUser: userId, type: 'REPORT' });
       showToast('User reported to admins');
     } catch (err) {
       showToast('Error reporting user');
@@ -52,7 +50,7 @@ export const MyMatchesPage: React.FC = () => {
     const confirm = window.confirm('Are you sure you want to block this user? They will disappear from your matches.');
     if (!confirm) return;
     try {
-      await api.client.post('/roommates/report-block', { reportedUser: userId, type: 'BLOCK' });
+      await api.reportOrBlockRoommate({ reportedUser: userId, type: 'BLOCK' });
       showToast('User blocked');
       fetchMatches();
     } catch (err) {
@@ -85,7 +83,7 @@ export const MyMatchesPage: React.FC = () => {
               People who have mutually expressed interest in being roommates with you.
             </p>
           </div>
-          <button onClick={() => navigate('/roommates')} className="mt-4 md:mt-0 px-4 py-2 bg-white hover:bg-neutral-100 border border-neutral-200 text-neutral-800 text-xs font-bold rounded-xl transition-colors">
+          <button onClick={() => navigate('/find-partner')} className="mt-4 md:mt-0 px-4 py-2 bg-white hover:bg-neutral-100 border border-neutral-200 text-neutral-800 text-xs font-bold rounded-xl transition-colors">
             Discover More
           </button>
         </div>
@@ -101,7 +99,7 @@ export const MyMatchesPage: React.FC = () => {
             <Heart className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
             <h3 className="text-base font-bold text-neutral-900">No matches yet</h3>
             <p className="text-xs text-neutral-500 mt-1">Keep expressing interest in profiles to find a match!</p>
-            <button onClick={() => navigate('/roommates')} className="mt-4 px-4 py-2 bg-neutral-900 text-white text-xs font-bold rounded-xl">
+            <button onClick={() => navigate('/find-partner')} className="mt-4 px-4 py-2 bg-neutral-900 text-white text-xs font-bold rounded-xl">
               Go Discover
             </button>
           </div>

@@ -451,6 +451,37 @@ export const api = {
     return res.data;
   },
 
+  // Roommates API
+  getRoommateProfile: async () => {
+    const res = await client.get('/roommates/profile');
+    return res.data;
+  },
+
+  saveRoommateProfile: async (data: any) => {
+    const res = await client.post('/roommates/profile', data);
+    return res.data;
+  },
+
+  discoverRoommates: async () => {
+    const res = await client.get('/roommates/discover');
+    return res.data;
+  },
+
+  expressInterest: async (data: { toProfileId: string }) => {
+    const res = await client.post('/roommates/interest', data);
+    return res.data;
+  },
+
+  getMatches: async () => {
+    const res = await client.get('/roommates/matches');
+    return res.data;
+  },
+
+  reportOrBlockRoommate: async (data: { reportedUser: string; type: 'REPORT' | 'BLOCK' }) => {
+    const res = await client.post('/roommates/report-block', data);
+    return res.data;
+  },
+
   acceptBooking: async (id: string) => {
     const res = await client.put(`/bookings/${id}/accept`);
     return res.data;

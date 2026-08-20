@@ -59,7 +59,7 @@ export const createBooking = async (req: AuthRequest, res: Response) => {
       status: 'PENDING'
     });
 
-    const requesterUser = await User.findById(req.user.id);
+    const requesterUser = await User.findById(requesterId);
     await notifyUser(
       req, 
       property.owner.toString(), 

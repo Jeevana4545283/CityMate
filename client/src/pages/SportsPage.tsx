@@ -32,6 +32,7 @@ export const SportsPage: React.FC = () => {
   const [allGames, setAllGames] = useState<IGame[]>([]);
   const [nearbyGames, setNearbyGames] = useState<IGame[]>([]);
   const [loading, setLoading] = useState(true);
+  const [connectionStatuses, setConnectionStatuses] = useState<{ [userId: string]: { status: ConnectionStatus; connectionId: string | null } }>({});
 
   // Game Creation Modal State
   const [isCreateGameModalOpen, setIsCreateGameModalOpen] = useState(false);

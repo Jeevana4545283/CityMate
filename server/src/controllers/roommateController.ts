@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
 import { RoommateProfile } from '../models/RoommateProfile';
 import { Interest } from '../models/Interest';
 import { Match } from '../models/Match';
 import { ReportBlock } from '../models/ReportBlock';
 import { User } from '../models/User';
 
-export const getProfile = async (req: Request, res: Response) => {
+export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
     const profile = await RoommateProfile.findOne({ user: req.user?.id }).populate('user', 'name profilePhoto');
     if (!profile) return res.status(404).json({ message: 'Profile not found' });
@@ -15,7 +16,7 @@ export const getProfile = async (req: Request, res: Response) => {
   }
 };
 
-export const createOrUpdateProfile = async (req: Request, res: Response) => {
+export const createOrUpdateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
     let profile = await RoommateProfile.findOne({ user: userId });
@@ -33,7 +34,7 @@ export const createOrUpdateProfile = async (req: Request, res: Response) => {
   }
 };
 
-export const discoverPartners = async (req: Request, res: Response) => {
+export const discoverPartners = async (req: AuthRequest, res: Response) => {
   try {
     const currentUserId = req.user?.id;
     // Get users that I have blocked or reported, or that have blocked me
@@ -60,7 +61,7 @@ export const discoverPartners = async (req: Request, res: Response) => {
   }
 };
 
-export const expressInterest = async (req: Request, res: Response) => {
+export const expressInterest = async (req: AuthRequest, res: Response) => {
   try {
     const fromUser = req.user?.id;
     const { toProfileId } = req.body; // RoommateProfile ID
@@ -99,7 +100,7 @@ export const expressInterest = async (req: Request, res: Response) => {
   }
 };
 
-export const getMatches = async (req: Request, res: Response) => {
+export const getMatches = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
     const matches = await Match.find({
@@ -113,9 +114,9 @@ export const getMatches = async (req: Request, res: Response) => {
   }
 };
 
-export const reportOrBlock = async (req: Request, res: Response) => {
+export const reportOrBlock = async (req: AuthRequest, res: Response) => {
   try {
-    const reporter = req.user?._id;
+    const reporter = req.user?.id;
     const { reportedUser, type, reason } = req.body;
     
     const rb = new ReportBlock({ reporter, reportedUser, type, reason });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Calendar, MapPin, Users, ArrowLeft, Trash2, Edit2, CheckCircle2 } from 'lucide-react';
+import { Calendar, MapPin, Users, ArrowLeft, Trash2, Edit2, CheckCircle2, Plus } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useSidebar } from '../context/SidebarContext';

@@ -15,7 +15,7 @@ export const PropertyDetailsPage: React.FC = () => {
 
   const [property, setProperty] = useState<IProperty | null>(null);
   const [loading, setLoading] = useState(true);
-  const [bookingLoading, setBookingLoading] = useState(false);
+  const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
@@ -40,18 +40,6 @@ export const PropertyDetailsPage: React.FC = () => {
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  const handleRequestBooking = async () => {
-    if (!property) return;
-    setBookingLoading(true);
-    try {
-      await api.createPropertyBooking(property._id);
-      showToast('Booking request sent successfully!');
-    } catch (error: any) {
-      showToast(error.response?.data?.message || 'Error sending booking request');
-    } finally {
-      setBookingLoading(false);
-    }
-  };
 
   const handleDelete = async () => {
     if (!property) return;

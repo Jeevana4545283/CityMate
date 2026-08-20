@@ -365,7 +365,7 @@ export const MessagingPage: React.FC = () => {
                     Connect with newcomers on Roommate Finder or Sports Partners to unlock private chat.
                   </p>
                   <button
-                    onClick={() => navigate('/roommates')}
+                    onClick={() => navigate('/find-partner')}
                     className="mt-2 px-4 py-2 rounded-xl bg-neutral-900 text-white font-bold text-xs cursor-pointer"
                   >
                     Find People to Connect

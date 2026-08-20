@@ -41,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenPostModal }) => {
     { name: 'Explore', path: '/explore', icon: Compass },
     { name: 'Find a Place', path: '/properties', icon: Building },
     { name: 'Need Services', path: '/services', icon: Wrench },
-    { name: 'Find People', path: '/people', icon: Users },
+    { name: 'Find Partner', path: '/find-partner', icon: Users },
     { name: 'Sports Partners', path: '/sports', icon: Trophy },
     { name: 'Sports Requests', path: '/sports-requests', icon: Trophy },
     { name: 'Local Events', path: '/events', icon: Calendar },

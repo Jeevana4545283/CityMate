@@ -27,15 +27,15 @@ export const RoommateFinderPage: React.FC = () => {
   const fetchProfiles = async () => {
     setLoading(true);
     try {
-      const res = await api.client.get('/roommates/discover');
-      let data = res.data;
+      const data = await api.discoverRoommates();
+      let filtered = data;
       if (selectedGender !== 'Any') {
-        data = data.filter((p: any) => p.gender === selectedGender);
+        filtered = filtered.filter((p: any) => p.user?.gender === selectedGender);
       }
       if (maxBudget) {
-        data = data.filter((p: any) => !p.budgetMax || p.budgetMax <= maxBudget);
+        filtered = filtered.filter((p: any) => !p.budgetMax || p.budgetMax <= maxBudget);
       }
-      setProfiles(data);
+      setProfiles(filtered);
     } catch (err) {
       console.error(err);
       showToast('Error loading profiles. Have you created your profile yet?');
@@ -46,9 +46,9 @@ export const RoommateFinderPage: React.FC = () => {
 
   const handleInterest = async (profileId: string) => {
     try {
-      const res = await api.client.post('/roommates/interest', { toProfileId: profileId });
-      showToast(res.data.message);
-      if (res.data.match) {
+      const res = await api.expressInterest({ toProfileId: profileId });
+      showToast(res.message);
+      if (res.match) {
         navigate('/my-matches');
       }
     } catch (err: any) {
@@ -76,7 +76,7 @@ export const RoommateFinderPage: React.FC = () => {
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 flex items-center space-x-2">
               <Users className="w-7 h-7 text-neutral-900" />
-              <span>Find Your Perfect Roommate</span>
+              <span>Find Your Partner</span>
             </h1>
             <p className="text-xs sm:text-sm text-neutral-500 mt-1">
               Connect with compatible roommates based on your housing and lifestyle preferences in {city}.

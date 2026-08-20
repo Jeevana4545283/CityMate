@@ -157,7 +157,7 @@ export const joinEvent = async (req: AuthRequest, res: Response) => {
     await event.save();
     
     if (event.organizer.toString() !== req.user.id) {
-      await notifyUser(req, event.organizer.toString(), `${req.user.name} joined your event: ${event.title}.`, `/events/${event._id}`);
+      await notifyUser(req, event.organizer.toString(), `Someone joined your event: ${event.title}.`, `/events/${event._id}`);
     }
     
     res.json(event);
@@ -176,7 +176,7 @@ export const leaveEvent = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: 'Organizer cannot leave their own event' });
     }
     
-    event.participants = event.participants.filter(p => p.toString() !== req.user.id);
+    event.participants = event.participants.filter(p => p.toString() !== req.user?.id);
     await event.save();
     
     res.json(event);
@@ -256,7 +256,7 @@ export const sendEventPartnerRequest = async (req: AuthRequest, res: Response) =
     });
     await request.save();
     
-    await notifyUser(req, targetUserId, `${req.user.name} wants to attend ${event.title} with you.`, `/events`);
+    await notifyUser(req, targetUserId, `Someone wants to attend ${event.title} with you.`, `/events`);
     
     res.status(201).json(request);
   } catch (error) {
@@ -321,7 +321,7 @@ export const acceptEventPartnerRequest = async (req: AuthRequest, res: Response)
     }
     
     const eventAny = request.event as any;
-    await notifyUser(req, request.sender.toString(), `${req.user.name} accepted your event partner request for ${eventAny.title}.`, `/events`);
+    await notifyUser(req, request.sender.toString(), `Someone accepted your event partner request for ${eventAny.title}.`, `/events`);
     
     res.json(request);
   } catch (error) {
@@ -344,7 +344,7 @@ export const rejectEventPartnerRequest = async (req: AuthRequest, res: Response)
     await request.save();
     
     const eventAny = request.event as any;
-    await notifyUser(req, request.sender.toString(), `${req.user.name} rejected your event partner request for ${eventAny.title}.`, `/events`);
+    await notifyUser(req, request.sender.toString(), `Someone rejected your event partner request for ${eventAny.title}.`, `/events`);
     
     res.json(request);
   } catch (error) {
