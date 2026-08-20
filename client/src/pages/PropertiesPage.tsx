@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Building,
   Filter,
@@ -23,14 +24,21 @@ export const PropertiesPage: React.FC = () => {
   const { user } = useAuth();
   const { city, area } = useLocation();
   const { isCollapsed } = useSidebar();
+  const navigate = useNavigate();
 
   const [properties, setProperties] = useState<IProperty[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Filters
   const [selectedType, setSelectedType] = useState<string>('All');
-  const [maxRent, setMaxRent] = useState<number>(20000);
   const [selectedGender, setSelectedGender] = useState<string>('Any');
   const [searchQuery, setSearchQuery] = useState<string>('');
-
+  const [maxRent, setMaxRent] = useState<number>(30000);
+  const [roomType, setRoomType] = useState<string>('All');
+  const [furnishing, setFurnishing] = useState<string>('All');
+  const [availability, setAvailability] = useState<string>('All');
+  const [sort, setSort] = useState<string>('recent');
+  
   const [activeProperty, setActiveProperty] = useState<IProperty | null>(null);
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -40,7 +48,7 @@ export const PropertiesPage: React.FC = () => {
 
   useEffect(() => {
     fetchProperties();
-  }, [selectedType, maxRent, selectedGender, searchQuery]);
+  }, [selectedType, maxRent, selectedGender, searchQuery, roomType, furnishing, availability, sort]);
 
   const fetchProperties = async () => {
     setLoading(true);
@@ -49,7 +57,11 @@ export const PropertiesPage: React.FC = () => {
         type: selectedType,
         maxRent,
         genderPreference: selectedGender,
-        search: searchQuery
+        search: searchQuery,
+        roomType,
+        furnishing,
+        availability,
+        sort
       });
       setProperties(data);
     } catch (err) {
@@ -74,7 +86,7 @@ export const PropertiesPage: React.FC = () => {
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  const propertyTypes = ['All', 'PG', 'Hostel', 'Flat', 'Single Room', 'Shared Room', 'Roommate'];
+  const propertyTypes = ['All', 'PG', 'Hostel', 'Flat', 'Single Room', 'Shared Room'];
 
   return (
     <div
@@ -95,43 +107,59 @@ export const PropertiesPage: React.FC = () => {
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 flex items-center space-x-2">
               <Building className="w-7 h-7 text-neutral-900" />
-              <span>Find a Place in {city}</span>
+              <span>Explore PGs & Flats in {city}</span>
             </h1>
             <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-              Verified PGs, Hostels, Flats, and Roommate listings around <span className="text-neutral-900 font-semibold">{area}</span>.
+              Verified Properties and Flats around <span className="text-neutral-900 font-semibold">{area}</span>.
             </p>
           </div>
 
-          {user?.role === 'PROPERTY_OWNER' && (
-            <button className="px-4 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold flex items-center space-x-2 shadow-xs">
-              <Plus className="w-4 h-4" />
-              <span>List Your Property</span>
-            </button>
-          )}
+          <button 
+            onClick={() => navigate('/properties/create')}
+            className="px-4 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold flex items-center space-x-2 shadow-xs"
+          >
+            <Plus className="w-4 h-4" />
+            <span>List Your Property</span>
+          </button>
         </div>
 
         {/* Filters Bar */}
         <div className="bg-white p-5 rounded-2xl mb-8 border border-neutral-200 shadow-2xs space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-neutral-700 mr-2 flex items-center">
-              <Filter className="w-3.5 h-3.5 text-neutral-900 mr-1" /> Type:
-            </span>
-            {propertyTypes.map((type) => (
-              <button
-                key={type}
-                onClick={() => setSelectedType(type)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  selectedType === type
-                    ? 'bg-neutral-900 text-white shadow-xs'
-                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                }`}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 pb-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-neutral-700 mr-2 flex items-center">
+                <Filter className="w-3.5 h-3.5 text-neutral-900 mr-1" /> Type:
+              </span>
+              {propertyTypes.map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setSelectedType(type)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    selectedType === type
+                      ? 'bg-neutral-900 text-white shadow-xs'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-bold text-neutral-700">Sort By:</span>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-900"
               >
-                {type}
-              </button>
-            ))}
+                <option value="recent">Newest</option>
+                <option value="rent_asc">Rent (Low to High)</option>
+                <option value="rent_desc">Rent (High to Low)</option>
+              </select>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-neutral-100">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-1">
             <div>
               <label className="block text-[11px] font-bold text-neutral-600 mb-1">
                 Max Monthly Rent: <span className="text-neutral-900 font-extrabold">₹{maxRent.toLocaleString()}</span>
@@ -139,7 +167,7 @@ export const PropertiesPage: React.FC = () => {
               <input
                 type="range"
                 min="5000"
-                max="30000"
+                max="50000"
                 step="1000"
                 value={maxRent}
                 onChange={(e) => setMaxRent(Number(e.target.value))}
@@ -157,6 +185,19 @@ export const PropertiesPage: React.FC = () => {
                 <option value="Any">Any Gender</option>
                 <option value="Male">Male Residents</option>
                 <option value="Female">Female Residents</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-[11px] font-bold text-neutral-600 mb-1">Availability</label>
+              <select
+                value={availability}
+                onChange={(e) => setAvailability(e.target.value)}
+                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-900"
+              >
+                <option value="All">All</option>
+                <option value="Available">Available</option>
+                <option value="Booking Fast">Booking Fast</option>
               </select>
             </div>
 
@@ -261,15 +302,19 @@ export const PropertiesPage: React.FC = () => {
                   {/* Actions Bar */}
                   <div className="px-5 pb-5 pt-2 border-t border-neutral-100 flex items-center gap-2">
                     <button
-                      onClick={() => setActiveProperty(prop)}
+                      onClick={() => navigate(`/properties/${prop._id}`)}
                       className="flex-1 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 text-xs font-bold text-neutral-900 transition-all text-center"
                     >
                       View Details
                     </button>
                     <button
                       onClick={() => {
-                        setActiveProperty(prop);
-                        setIsContactModalOpen(true);
+                        const ownerIdStr = typeof prop.owner === 'string' ? prop.owner : (prop.owner as any)._id;
+                        if (user && user._id === ownerIdStr) {
+                          navigate('/messages');
+                        } else {
+                          navigate(`/messages?userId=${ownerIdStr}`);
+                        }
                       }}
                       className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold flex items-center space-x-1 shadow-xs"
                     >

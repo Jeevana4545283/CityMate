@@ -72,7 +72,8 @@ export const sendConnectionRequest = async (req: AuthRequest, res: Response) => 
     // Real-Time Socket.IO notification to receiver
     const io = req.app.get('io');
     if (io) {
-      io.to(`user_${receiverId}`).emit('notification_received', {
+      io.to(`user_${receiverId}`).emit('notification_received', { 
+        userId: receiverId.toString(),
         type: 'ConnectionRequest',
         message: `${senderUser?.name || 'A user'} sent you a connection request.`
       });
@@ -137,7 +138,7 @@ export const respondConnectionRequest = async (req: AuthRequest, res: Response) 
           status: 'Accepted',
           partnerId: currentUserId
         });
-        io.to(`user_${targetUserId}`).emit('notification_received', {
+        io.to(`user_${targetUserId}`).emit('notification_received', { userId: targetUserId,
           type: 'ConnectionAccepted',
           message: `${acceptorUser?.name || 'A user'} accepted your connection request!`
         });
@@ -170,7 +171,7 @@ export const respondConnectionRequest = async (req: AuthRequest, res: Response) 
           status: 'Rejected',
           partnerId: currentUserId
         });
-        io.to(`user_${targetUserId}`).emit('notification_received', {
+        io.to(`user_${targetUserId}`).emit('notification_received', { userId: targetUserId,
           type: 'System',
           message: `${acceptorUser?.name || 'A user'} declined your connection request.`
         });

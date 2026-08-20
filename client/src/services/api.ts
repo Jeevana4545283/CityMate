@@ -415,6 +415,88 @@ export const api = {
     }
   },
 
+  getMyListings: async () => {
+    const res = await client.get('/properties/my-listings');
+    return res.data;
+  },
+
+  createProperty: async (propertyData: any) => {
+    const res = await client.post('/properties', propertyData);
+    return res.data;
+  },
+
+  updateProperty: async (id: string, propertyData: any) => {
+    const res = await client.put(`/properties/${id}`, propertyData);
+    return res.data;
+  },
+
+  deleteProperty: async (id: string) => {
+    const res = await client.delete(`/properties/${id}`);
+    return res.data;
+  },
+
+  // Property Bookings
+  createPropertyBooking: async (data: { propertyId: string; moveInDate?: string; rentAgreed?: number; depositAgreed?: number }) => {
+    const res = await client.post('/bookings', data);
+    return res.data;
+  },
+
+  getMyBookings: async () => {
+    const res = await client.get('/bookings/my-bookings');
+    return res.data;
+  },
+
+  getBookingRequests: async () => {
+    const res = await client.get('/bookings/requests');
+    return res.data;
+  },
+
+  // Roommates API
+  getRoommateProfile: async () => {
+    const res = await client.get('/roommates/profile');
+    return res.data;
+  },
+
+  saveRoommateProfile: async (data: any) => {
+    const res = await client.post('/roommates/profile', data);
+    return res.data;
+  },
+
+  discoverRoommates: async () => {
+    const res = await client.get('/roommates/discover');
+    return res.data;
+  },
+
+  expressInterest: async (data: { toProfileId: string }) => {
+    const res = await client.post('/roommates/interest', data);
+    return res.data;
+  },
+
+  getMatches: async () => {
+    const res = await client.get('/roommates/matches');
+    return res.data;
+  },
+
+  reportOrBlockRoommate: async (data: { reportedUser: string; type: 'REPORT' | 'BLOCK' }) => {
+    const res = await client.post('/roommates/report-block', data);
+    return res.data;
+  },
+
+  acceptBooking: async (id: string) => {
+    const res = await client.put(`/bookings/${id}/accept`);
+    return res.data;
+  },
+
+  rejectBooking: async (id: string) => {
+    const res = await client.put(`/bookings/${id}/reject`);
+    return res.data;
+  },
+
+  cancelBooking: async (id: string) => {
+    const res = await client.delete(`/bookings/${id}/cancel`);
+    return res.data;
+  },
+
   // Services & Handymen
   getServiceProviders: async (category?: string, city?: string) => {
     try {
@@ -492,9 +574,9 @@ export const api = {
   },
 
   // Sports & Games
-  getGames: async (sport?: string) => {
+  getGames: async (sport?: string, city?: string, area?: string) => {
     try {
-      const res = await client.get('/sports/games', { params: { sport } });
+      const res = await client.get('/sports/games', { params: { sport, city, area } });
       return res.data;
     } catch (e) {
       if (sport && sport !== 'All') {
@@ -544,6 +626,40 @@ export const api = {
       }
       return game;
     }
+  },
+
+  // Sports Requests
+  sendSportsRequest: async (postId: string) => {
+    const res = await client.post('/sports-partner-requests', { postId });
+    return res.data;
+  },
+  getMySportsRequests: async () => {
+    const res = await client.get('/sports-partner-requests/my-requests');
+    return res.data;
+  },
+  getReceivedSportsRequests: async () => {
+    const res = await client.get('/sports-partner-requests/received');
+    return res.data;
+  },
+  acceptSportsRequest: async (id: string) => {
+    const res = await client.put(`/sports-partner-requests/${id}/accept`);
+    return res.data;
+  },
+  rejectSportsRequest: async (id: string) => {
+    const res = await client.put(`/sports-partner-requests/${id}/reject`);
+    return res.data;
+  },
+  cancelSportsRequest: async (id: string) => {
+    const res = await client.delete(`/sports-partner-requests/${id}/cancel`);
+    return res.data;
+  },
+  getMySportsPosts: async () => {
+    const res = await client.get('/sports-partner-requests/my-posts');
+    return res.data;
+  },
+  deleteSportsPost: async (id: string) => {
+    const res = await client.delete(`/sports-partner-requests/posts/${id}`);
+    return res.data;
   },
 
   // Communities & Posts
@@ -657,6 +773,63 @@ export const api = {
       memoryMarketplace.unshift(newItem);
       return newItem;
     }
+  },
+  // Events
+  getEvents: async (category?: string, city?: string, search?: string) => {
+    const res = await client.get('/events', { params: { category, city, search } });
+    return res.data;
+  },
+  getEventById: async (id: string) => {
+    const res = await client.get(`/events/${id}`);
+    return res.data;
+  },
+  getMyEvents: async () => {
+    const res = await client.get('/events/my-events');
+    return res.data;
+  },
+  getJoinedEvents: async () => {
+    const res = await client.get('/events/joined');
+    return res.data;
+  },
+  createEvent: async (data: any) => {
+    const res = await client.post('/events', data);
+    return res.data;
+  },
+  updateEvent: async (id: string, data: any) => {
+    const res = await client.put(`/events/${id}`, data);
+    return res.data;
+  },
+  deleteEvent: async (id: string) => {
+    const res = await client.delete(`/events/${id}`);
+    return res.data;
+  },
+  joinEvent: async (id: string) => {
+    const res = await client.post(`/events/${id}/join`);
+    return res.data;
+  },
+  leaveEvent: async (id: string) => {
+    const res = await client.delete(`/events/${id}/leave`);
+    return res.data;
+  },
+  getAvailableEventPartners: async (id: string) => {
+    const res = await client.get(`/events/${id}/available-partners`);
+    return res.data;
+  },
+  sendEventPartnerRequest: async (id: string, targetUserId: string) => {
+    const res = await client.post(`/events/${id}/partner-requests`, { targetUserId });
+    return res.data;
+  },
+  getEventPartnerRequests: async () => {
+    const res = await client.get('/events/partner-requests/me');
+    return res.data;
+  },
+  acceptEventPartnerRequest: async (id: string) => {
+    const res = await client.post(`/events/partner-requests/${id}/accept`);
+    return res.data;
+  },
+  rejectEventPartnerRequest: async (id: string) => {
+    const res = await client.post(`/events/partner-requests/${id}/reject`);
+    return res.data;
   },
 
   // Admin

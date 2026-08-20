@@ -19,7 +19,8 @@ import {
   Shield,
   X,
   Menu,
-  MoreVertical
+  MoreVertical,
+  Calendar
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -40,15 +41,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenPostModal }) => {
     { name: 'Explore', path: '/explore', icon: Compass },
     { name: 'Find a Place', path: '/properties', icon: Building },
     { name: 'Need Services', path: '/services', icon: Wrench },
-    { name: 'Find People', path: '/people', icon: Users },
+    { name: 'Find Partner', path: '/find-partner', icon: Users },
     { name: 'Sports Partners', path: '/sports', icon: Trophy },
+    { name: 'Sports Requests', path: '/sports-requests', icon: Trophy },
+    { name: 'Local Events', path: '/events', icon: Calendar },
     { name: 'Communities', path: '/communities', icon: HeartHandshake },
     { name: 'Marketplace', path: '/marketplace', icon: ShoppingBag },
     { name: 'Ask Your City', path: '/communities?tab=qa', icon: HelpCircle },
-    { name: 'My Bookings', path: '/services', icon: Clock },
+    { name: 'My Listings', path: '/my-listings', icon: Building },
+    { name: 'My Bookings', path: '/my-bookings', icon: Clock },
+    { name: 'Booking Requests', path: '/booking-requests', icon: Bookmark },
     { name: 'Messages', path: '/messages', icon: MessageSquare },
     { name: 'Notifications', path: '/notifications', icon: Bell, badge: unreadCount },
-    { name: 'Saved Items', path: '/properties', icon: Bookmark },
     { name: 'Profile', path: '/profile', icon: User }
   ];
 

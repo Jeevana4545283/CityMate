@@ -12,6 +12,10 @@ import adminRoutes from './routes/adminRoutes';
 import marketplaceRoutes from './routes/marketplaceRoutes';
 import connectionRoutes from './routes/connectionRoutes';
 import notificationRoutes from './routes/notificationRoutes';
+import bookingRoutes from './routes/bookingRoutes';
+import sportsRequestRoutes from './routes/sportsRequestRoutes';
+import eventRoutes from './routes/eventRoutes';
+import roommateRoutes from './routes/roommateRoutes';
 
 dotenv.config();
 
@@ -37,5 +41,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/connections', connectionRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/sports-partner-requests', sportsRequestRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/roommates', roommateRoutes);
 
 export default app;

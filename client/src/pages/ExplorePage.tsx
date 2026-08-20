@@ -27,7 +27,7 @@ export const ExplorePage: React.FC = () => {
     { name: 'PGs', icon: Building, path: '/properties' },
     { name: 'Hostels', icon: Building, path: '/properties' },
     { name: 'Flats', icon: Building, path: '/properties' },
-    { name: 'Roommates', icon: Building, path: '/roommates' },
+    { name: 'Roommates', icon: Building, path: '/find-partner' },
     { name: 'Restaurants', icon: Coffee, path: '/essentials' },
     { name: 'Cafes', icon: Coffee, path: '/essentials' },
     { name: 'Hospitals', icon: Hospital, path: '/essentials' },

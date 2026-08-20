@@ -27,12 +27,12 @@ export const SportsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<'partners' | 'games'>('partners');
-  const [selectedSport, setSelectedSport] = useState<string>('Badminton');
+  const [selectedSport, setSelectedSport] = useState<string>('ALL');
   
-  const [games, setGames] = useState<IGame[]>([]);
-  const [partners, setPartners] = useState<IUser[]>([]);
-  const [connectionStatuses, setConnectionStatuses] = useState<{ [userId: string]: { status: ConnectionStatus; connectionId: string | null } }>({});
+  const [allGames, setAllGames] = useState<IGame[]>([]);
+  const [nearbyGames, setNearbyGames] = useState<IGame[]>([]);
   const [loading, setLoading] = useState(true);
+  const [connectionStatuses, setConnectionStatuses] = useState<{ [userId: string]: { status: ConnectionStatus; connectionId: string | null } }>({});
 
   // Game Creation Modal State
   const [isCreateGameModalOpen, setIsCreateGameModalOpen] = useState(false);
@@ -46,7 +46,7 @@ export const SportsPage: React.FC = () => {
   const [gameDesc, setGameDesc] = useState('Looking for 2 intermediate players for a fun doubles match!');
   const [toastMessage, setToastMessage] = useState('');
 
-  const SPORTS_LIST = ['Badminton', 'Cricket', 'Football', 'Tennis', 'Basketball', 'Table Tennis', 'Running'];
+  const SPORTS_LIST = ['ALL', 'Badminton', 'Cricket', 'Football', 'Tennis', 'Basketball', 'Table Tennis', 'Running'];
 
   useEffect(() => {
     fetchData();
@@ -55,20 +55,13 @@ export const SportsPage: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [gamesData, usersData] = await Promise.all([
-        api.getGames(selectedSport),
-        api.getUsers({ sport: selectedSport })
+      const sportParam = selectedSport === 'ALL' ? undefined : selectedSport;
+      const [allData, nearbyData] = await Promise.all([
+        api.getGames(sportParam),
+        api.getGames(sportParam, city, area)
       ]);
-      setGames(gamesData);
-      const filtered = usersData.filter((u: IUser) => u._id !== user?._id);
-      setPartners(filtered);
-
-      const statusMap: { [userId: string]: { status: ConnectionStatus; connectionId: string | null } } = {};
-      for (const u of filtered) {
-        const connInfo = await api.getConnectionStatus(u._id);
-        statusMap[u._id] = { status: connInfo.status, connectionId: connInfo.connectionId };
-      }
-      setConnectionStatuses(statusMap);
+      setAllGames(allData);
+      setNearbyGames(nearbyData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -119,7 +112,8 @@ export const SportsPage: React.FC = () => {
         description: gameDesc
       });
 
-      setGames([newGame, ...games]);
+      setAllGames([newGame, ...allGames]);
+      setNearbyGames([newGame, ...nearbyGames]);
       setIsCreateGameModalOpen(false);
       showToast('New sports match created & published!');
     } catch (err) {
@@ -127,13 +121,26 @@ export const SportsPage: React.FC = () => {
     }
   };
 
-  const handleJoinGame = async (gameId: string) => {
+  const handleSendSportsRequest = async (gameId: string) => {
     try {
-      const updated = await api.joinGame(gameId);
-      setGames(games.map((g) => (g._id === gameId ? updated : g)));
-      showToast('You joined the game!');
-    } catch (err) {
-      console.error(err);
+      await api.sendSportsRequest(gameId);
+      showToast('Partner request sent!');
+      navigate('/sports-requests');
+    } catch (err: any) {
+      showToast(err.response?.data?.message || 'Error sending request');
+    }
+  };
+
+  const handleDeletePost = async (gameId: string) => {
+    if (!window.confirm('Are you sure you want to delete this sports partner post?')) return;
+    
+    try {
+      await api.deleteSportsPost(gameId);
+      setAllGames(allGames.filter(g => g._id !== gameId));
+      setNearbyGames(nearbyGames.filter(g => g._id !== gameId));
+      showToast('Post deleted successfully!');
+    } catch (err: any) {
+      showToast(err.response?.data?.message || 'Error deleting post');
     }
   };
 
@@ -142,15 +149,6 @@ export const SportsPage: React.FC = () => {
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  // Smart player matching computation
-  const playerMatches = partners.map((otherUser) => {
-    const matchData = user ? calculateSmartMatch(user, otherUser, selectedSport) : { score: 92, reasons: ['Same sport', 'Nearby'] };
-    return {
-      user: otherUser,
-      score: matchData.score,
-      reasons: matchData.reasons
-    };
-  }).sort((a, b) => b.score - a.score);
 
   return (
     <div
@@ -198,7 +196,7 @@ export const SportsPage: React.FC = () => {
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Find Sports Partners</span>
+            <span>Find Sports Partners ({allGames.length})</span>
           </button>
 
           <button
@@ -210,7 +208,7 @@ export const SportsPage: React.FC = () => {
             }`}
           >
             <Trophy className="w-4 h-4" />
-            <span>Games Near You ({games.length})</span>
+            <span>Games Near You ({nearbyGames.length})</span>
           </button>
         </div>
 
@@ -232,164 +230,90 @@ export const SportsPage: React.FC = () => {
           ))}
         </div>
 
-        {/* TAB 1: SPORTS PARTNERS WITH SMART MATCH SCORE & CONNECTION BUTTONS */}
-        {activeTab === 'partners' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {playerMatches.map(({ user: player, score, reasons }) => {
-              const connInfo = connectionStatuses[player._id] || { status: 'None', connectionId: null };
+        {/* MAIN TABS RENDERING */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {(activeTab === 'partners' ? allGames : nearbyGames).map((game) => {
+            const hostId = typeof game.host === 'object' ? game.host._id : game.host;
+            const hostName = typeof game.host === 'object' ? game.host.name : 'Host';
+            const isHost = hostId === user?._id;
+            const isJoined = game.playersJoined.some((p: any) => (p._id || p) === user?._id);
+            const isFull = game.playersJoined.length >= game.maxPlayers;
 
-              return (
-                <div key={player._id} className="glass-card rounded-3xl p-6 border border-neutral-200 flex flex-col justify-between group">
-                  <div>
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <img
-                          src={player.profilePhoto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
-                          alt={player.name}
-                          className="w-14 h-14 rounded-2xl object-cover border border-neutral-200"
-                        />
-                        <div>
-                          <h3 className="text-base font-bold text-neutral-900">{player.name}</h3>
-                          <p className="text-xs text-neutral-500 flex items-center mt-0.5">
-                            <MapPin className="w-3 h-3 text-neutral-900 mr-1" />
-                            {player.area}, {player.city} (2.1 km)
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Smart Match Breakdown Card */}
-                    <div className="mb-4 p-4 rounded-2xl bg-neutral-50 border border-neutral-200">
-                      <MatchBadge score={score} reasons={reasons} showDetails={true} />
-                    </div>
-
-                    <p className="text-xs text-neutral-600 mb-4 line-clamp-2">{player.bio}</p>
-
-                    <div className="p-3 rounded-2xl bg-neutral-100 border border-neutral-200 mb-4 text-xs space-y-1">
-                      <div className="flex justify-between text-neutral-500">
-                        <span>Primary Sport:</span>
-                        <span className="text-neutral-900 font-bold">{selectedSport}</span>
-                      </div>
-                      <div className="flex justify-between text-neutral-500">
-                        <span>Skill Level:</span>
-                        <span className="text-neutral-900 font-bold">
-                          {player.sports?.[0]?.skillLevel || 'Intermediate'}
-                        </span>
-                      </div>
+            return (
+              <div key={game._id} className="glass-card p-6 rounded-3xl border border-neutral-200 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="px-3 py-1 rounded-full bg-neutral-100 text-neutral-900 border border-neutral-200 text-xs font-bold">
+                      🏸 {game.sport}
+                    </span>
+                    <div className="text-xs font-bold text-neutral-700 bg-neutral-100 px-3 py-1 rounded-full border border-neutral-200">
+                      👥 {game.playersJoined.length} / {game.maxPlayers} Joined
                     </div>
                   </div>
 
-                  {/* Connection Button States */}
-                  <div className="pt-3 border-t border-neutral-100 flex items-center space-x-2">
-                    {connInfo.status === 'Accepted' ? (
-                      <button
-                        onClick={() => navigate(`/messages?userId=${player._id}`)}
-                        className="w-full py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold flex items-center justify-center space-x-1 shadow-xs"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        <span>Message (Private Chat)</span>
-                      </button>
-                    ) : connInfo.status === 'Pending_Sent' ? (
-                      <button
-                        disabled
-                        className="w-full py-2.5 rounded-xl bg-neutral-100 border border-neutral-200 text-neutral-500 text-xs font-bold flex items-center justify-center space-x-1 cursor-not-allowed"
-                      >
-                        <Clock className="w-4 h-4 text-neutral-400" />
-                        <span>Request Sent</span>
-                      </button>
-                    ) : connInfo.status === 'Pending_Received' ? (
-                      <div className="flex items-center space-x-2 w-full">
-                        <button
-                          onClick={() => connInfo.connectionId && handleRespondRequest(player._id, connInfo.connectionId, 'Accept')}
-                          className="flex-1 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold flex items-center justify-center space-x-1"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Accept</span>
-                        </button>
-                        <button
-                          onClick={() => connInfo.connectionId && handleRespondRequest(player._id, connInfo.connectionId, 'Reject')}
-                          className="py-2.5 px-3 rounded-xl bg-neutral-100 border border-neutral-200 text-neutral-700 hover:bg-neutral-200 text-xs font-bold"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleSendRequest(player._id, player.name)}
-                        className="w-full py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold flex items-center justify-center space-x-1 shadow-xs"
-                      >
-                        <UserPlus className="w-4 h-4" />
-                        <span>Connect</span>
-                      </button>
-                    )}
+                  <h3 className="text-lg font-bold text-neutral-900 mb-2">{game.title}</h3>
+
+                  <div className="space-y-1.5 text-xs text-neutral-700 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4 text-neutral-900" />
+                      <span>{game.date} • {game.time}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="w-4 h-4 text-neutral-900" />
+                      <span>{game.venue}</span>
+                    </div>
                   </div>
+
+                  <p className="text-xs text-neutral-600 leading-relaxed mb-4">{game.description}</p>
                 </div>
-              );
-            })}
-          </div>
-        )}
 
-        {/* TAB 2: GAMES NEAR YOU */}
-        {activeTab === 'games' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {games.map((game) => {
-              const hostName = typeof game.host === 'object' ? game.host.name : 'Host';
-              const isJoined = game.playersJoined.some((p: any) => (p._id || p) === user?._id);
-              const isFull = game.playersJoined.length >= game.maxPlayers;
+                <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
+                  <span className="text-xs text-neutral-500">Host: <strong className="text-neutral-900">{hostName}</strong></span>
 
-              return (
-                <div key={game._id} className="glass-card p-6 rounded-3xl border border-neutral-200 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="px-3 py-1 rounded-full bg-neutral-100 text-neutral-900 border border-neutral-200 text-xs font-bold">
-                        🏸 {game.sport}
-                      </span>
-                      <div className="text-xs font-bold text-neutral-700 bg-neutral-100 px-3 py-1 rounded-full border border-neutral-200">
-                        👥 {game.playersJoined.length} / {game.maxPlayers} Joined
+                  <div className="flex space-x-2">
+                    {isHost ? (
+                      <button
+                        onClick={() => handleDeletePost(game._id)}
+                        className="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs transition-colors"
+                      >
+                        Delete
+                      </button>
+                    ) : isJoined ? (
+                      <div className="flex space-x-2">
+                        <span className="px-4 py-2 rounded-xl bg-neutral-100 text-neutral-900 border border-neutral-200 text-xs font-bold flex items-center justify-center">
+                          Joined
+                        </span>
+                        <button
+                          onClick={() => navigate(`/messages?userId=${hostId}`)}
+                          className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-xs flex items-center space-x-1"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" /> <span>Contact</span>
+                        </button>
                       </div>
-                    </div>
-
-                    <h3 className="text-lg font-bold text-neutral-900 mb-2">{game.title}</h3>
-
-                    <div className="space-y-1.5 text-xs text-neutral-700 mb-4">
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4 text-neutral-900" />
-                        <span>{game.date} • {game.time}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4 text-neutral-900" />
-                        <span>{game.venue}</span>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-neutral-600 leading-relaxed mb-4">{game.description}</p>
-                  </div>
-
-                  <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
-                    <span className="text-xs text-neutral-500">Host: <strong className="text-neutral-900">{hostName}</strong></span>
-
-                    {isJoined ? (
-                      <span className="px-4 py-2 rounded-xl bg-neutral-100 text-neutral-900 border border-neutral-200 text-xs font-bold">
-                        ✓ Joined Match
-                      </span>
                     ) : isFull ? (
-                      <span className="px-4 py-2 rounded-xl bg-neutral-100 text-neutral-400 text-xs font-bold">
+                      <span className="px-4 py-2 rounded-xl bg-neutral-100 text-neutral-400 text-xs font-bold flex items-center justify-center">
                         Match Full
                       </span>
                     ) : (
                       <button
-                        onClick={() => handleJoinGame(game._id)}
+                        onClick={() => handleSendSportsRequest(game._id)}
                         className="px-5 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-xs"
                       >
-                        Join Game
+                        Send Request
                       </button>
                     )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+              </div>
+            );
+          })}
+          
+          {(activeTab === 'partners' ? allGames : nearbyGames).length === 0 && !loading && (
+            <div className="col-span-full py-12 text-center text-neutral-500 text-sm font-semibold">
+              No sports posts found.
+            </div>
+          )}
+        </div>
 
         {/* Create Game Modal */}
         {isCreateGameModalOpen && (
