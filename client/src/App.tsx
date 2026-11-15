@@ -172,7 +172,7 @@ export const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/CityMate">
       <AuthProvider>
         <LocationProvider>
           <NotificationProvider>
