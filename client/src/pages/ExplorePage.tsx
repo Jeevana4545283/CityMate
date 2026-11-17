@@ -38,6 +38,7 @@ export const ExplorePage: React.FC = () => {
     { name: 'Entertainment', icon: Film, path: '/essentials' },
     { name: 'ATMs', icon: CreditCard, path: '/essentials' },
     { name: 'Petrol Stations', icon: Fuel, path: '/essentials' },
+    { name: 'Tourist Places', icon: Compass, path: '/tourist-places' },
     { name: 'Transport', icon: Bus, path: '/essentials' }
   ];
 

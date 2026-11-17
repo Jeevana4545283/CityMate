@@ -25,6 +25,7 @@ import { MyBookingsPage } from './pages/MyBookingsPage';
 import { RoommateFinderPage } from './pages/RoommateFinderPage';
 import { RoommateProfilePage } from './pages/RoommateProfilePage';
 import { MyMatchesPage } from './pages/MyMatchesPage';
+import { TouristPlacesPage } from './pages/TouristPlacesPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { ProviderDashboardPage } from './pages/ProviderDashboardPage';
 import { SportsPage } from './pages/SportsPage';
@@ -140,6 +141,7 @@ export const AppContent: React.FC = () => {
           <Route path="/find-partner" element={<ProtectedRoute><RoommateFinderPage /></ProtectedRoute>} />
           <Route path="/roommate-profile" element={<ProtectedRoute><RoommateProfilePage /></ProtectedRoute>} />
           <Route path="/my-matches" element={<ProtectedRoute><MyMatchesPage /></ProtectedRoute>} />
+          <Route path="/tourist-places" element={<ProtectedRoute><TouristPlacesPage /></ProtectedRoute>} />
           <Route path="/services" element={<ProtectedRoute><ServicesPage /></ProtectedRoute>} />
           <Route path="/provider-dashboard" element={<ProtectedRoute><ProviderDashboardPage /></ProtectedRoute>} />
           <Route path="/sports" element={<ProtectedRoute><SportsPage /></ProtectedRoute>} />

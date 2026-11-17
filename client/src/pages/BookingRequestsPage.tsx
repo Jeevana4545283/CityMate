@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { useSidebar } from '../context/SidebarContext';
-import { ClipboardList, CheckCircle, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ClipboardList, CheckCircle, XCircle, MessageCircle } from 'lucide-react';
 
 export const BookingRequestsPage: React.FC = () => {
+  const navigate = useNavigate();
   const { isCollapsed } = useSidebar();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,6 +115,14 @@ export const BookingRequestsPage: React.FC = () => {
                         <XCircle className="w-3.5 h-3.5 mr-1" /> Reject
                       </button>
                     </div>
+                  )}
+                  {req.status === 'ACCEPTED' && (
+                    <button 
+                      onClick={() => navigate(`/messages?userId=${req.requester?._id || req.requester}`)}
+                      className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold flex items-center border border-blue-100 hover:bg-blue-100"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 mr-1" /> Contact Tenant
+                    </button>
                   )}
                 </div>
               </div>

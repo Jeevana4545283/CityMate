@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useSidebar } from '../context/SidebarContext';
-import { Calendar, Building, XCircle } from 'lucide-react';
+import { Calendar, Building, XCircle, MessageCircle } from 'lucide-react';
 
 export const MyBookingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -92,6 +92,11 @@ export const MyBookingsPage: React.FC = () => {
                     {booking.status === 'PENDING' && (
                       <button onClick={() => handleCancel(booking._id)} className="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-bold flex items-center hover:bg-red-100">
                         <XCircle className="w-3.5 h-3.5 mr-1" /> Cancel
+                      </button>
+                    )}
+                    {booking.status === 'ACCEPTED' && (
+                      <button onClick={() => navigate(`/messages?userId=${booking.owner?._id || booking.owner}`)} className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold flex items-center hover:bg-blue-100">
+                        <MessageCircle className="w-3.5 h-3.5 mr-1" /> Contact Owner
                       </button>
                     )}
                   </div>

@@ -7,6 +7,7 @@ import { Connection } from './models/Connection';
 import { Message } from './models/Message';
 import { User } from './models/User';
 import { Notification } from './models/Notification';
+import { Booking } from './models/Booking';
 
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
@@ -75,13 +76,26 @@ io.on('connection', (socket) => {
     if (!userId || !partnerId) return;
 
     // Verify Accepted Connection in MongoDB
-    const isConnected = await Connection.findOne({
+    let isConnected = await Connection.findOne({
       $or: [
         { sender: userId, receiver: partnerId },
         { sender: partnerId, receiver: userId }
       ],
       status: 'Accepted'
     });
+
+    if (!isConnected) {
+      const hasAcceptedBooking = await Booking.findOne({
+        $or: [
+          { owner: userId, requester: partnerId },
+          { owner: partnerId, requester: userId }
+        ],
+        status: 'ACCEPTED'
+      });
+      if (hasAcceptedBooking) {
+        isConnected = true as any;
+      }
+    }
 
     if (!isConnected) {
       return socket.emit('chat_error', { message: 'Chat access allowed only for connected users.' });
@@ -117,13 +131,26 @@ io.on('connection', (socket) => {
       if (!userId || !receiverId || !content || !content.trim()) return;
 
       // Security Check: Enforce Accepted Connection in MongoDB
-      const isConnected = await Connection.findOne({
+      let isConnected = await Connection.findOne({
         $or: [
           { sender: userId, receiver: receiverId },
           { sender: receiverId, receiver: userId }
         ],
         status: 'Accepted'
       });
+
+      if (!isConnected) {
+        const hasAcceptedBooking = await Booking.findOne({
+          $or: [
+            { owner: userId, requester: receiverId },
+            { owner: receiverId, requester: userId }
+          ],
+          status: 'ACCEPTED'
+        });
+        if (hasAcceptedBooking) {
+          isConnected = true as any;
+        }
+      }
 
       if (!isConnected) {
         return socket.emit('chat_error', { message: 'Cannot send message. Connection request must be accepted first.' });
